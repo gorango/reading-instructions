@@ -1,19 +1,61 @@
 # Reading Instructions
 
-NodeJS library for parsing plain text into instructions for a (screen) reader to utilize for playing the text one word at a time. Returns an array of objects with original `text` and `index` along with different properties depending on the type of token it is.
+JS utility for parsing plain text into instructions for a screen reader.
+
+## Usage
+
+NOTE: sentence splitting is up to the user. This is intentional in order to avoid redundancies in implementation.
+
+Install reading instructions from npm
+
+```shell
+npm i --save reading-instructions
+```
+
+Import and call:
+
+```javascript
+import getInstructions from 'reading-instructions'
+
+const sentence = `This is going to be awesome!`
+console.log(getInstructions(sentence))
+```
+
+`getInstructions` does the fo splits the text into words, spaces, punctuation, quotes, and parentheses; and assign various properties - optimal alignment, display duration, whether text is nested within quotes or parentheses, and whether text should be ignored by a screen reader.
+
+The results array will contain tokens using the following model:
 
 ### Object model
 
 ```javascript
 {
-  text: String,       // Plain text for the token - words, space, punctuation, quote, etc.
-  index: Number,      // Location within the text
-  modifier?: Number,  // Adjust display duration based on word length and position
+  text: String,       // plain text for the token - words, space, punctuation, quote, etc.
+  index: Number,      // location within the text
+  modifier?: Number,  // optimal display duration based on word length and position
   wraps?: {
-    LEFT: String,     // Quoted or parentheses string of length 1
-    RIGHT: String     // Quoted or parentheses string of length 1
+    LEFT: String,     // quoted or parentheses string of length 1
+    RIGHT: String     // quoted or parentheses string of length 1
   },
-  offset?: Number     // Offset x characters from left - for optimal alignment
-  ignore?: Boolean,   // A speed reader should ignore spaces, quotes and parens
+  offset?: Number     // offset x characters from left - for optimal alignment
+  ignore?: Boolean,   // speed readers should ignore spaces, quotes and parens
 }
 ```
+
+## Testing
+
+```bash
+npm run test
+```
+
+Watch your `src` file while [Mocha](https://github.com/mochajs/mocha) runs tests with [Babel](https://github.com/babel/babel) for latest syntax and [Standard](https://github.com/feross/standard) for linting.
+
+### Coverage with [nyc](https://github.com/istanbuljs/nyc)
+
+```bash
+npm run coverage
+```
+
+#### Pending Tests:
+
+- [ ] should handle nested quotes
+- [ ] should split (and hyphenate) long words

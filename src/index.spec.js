@@ -1,8 +1,8 @@
-const { expect } = require('chai')
-const fs = require('fs')
+/* eslint-env mocha */
+import { expect } from 'chai'
 
-const getInstructions = require('./')
-const { WRAPS } = require('./constants')
+import getInstructions from './'
+import { WRAPS } from './constants'
 
 describe('read-word.js', () => {
   describe('readWord(text)', () => {
@@ -15,6 +15,7 @@ describe('read-word.js', () => {
       expect(result[0].modifier).to.equal(1.5)
       // 'old' - short word should not have a modifier > 1
       expect(result[8].modifier).to.equal(1)
+      // eslint-disable-next-line
       expect(result[8].wraps).to.be.empty
     })
 
@@ -27,6 +28,7 @@ describe('read-word.js', () => {
       expect(result[7].wraps).to.equal(WRAPS.PARENS)
       // ensure plain word is not parenthesized
       expect(result[14].text).to.equal(`just`)
+      // eslint-disable-next-line
       expect(result[14].wraps).to.be.empty
       expect(result[14].modifier).to.equal(1.6)
     })
@@ -40,6 +42,7 @@ describe('read-word.js', () => {
       expect(result[5].wraps).to.equal(WRAPS.STANDARD_QUOTE)
       // ensure plain word is not quoted
       expect(result[12].text).to.equal(`this`)
+      // eslint-disable-next-line
       expect(result[12].wraps).to.be.empty
       expect(result[12].modifier).to.equal(1.6)
     })
@@ -50,6 +53,7 @@ describe('read-word.js', () => {
       // 'Nested' will be quoted - GOOD
       expect(result[1].wraps.LEFT).to.equal('"')
       // 'parens' will not be quoted or parenthesized - BAD
+      // eslint-disable-next-line
       expect(result[4].wraps).to.be.empty
       // 'suck' will be parenthesized... - WTF!
       expect(result[7].wraps.LEFT).to.equal('(')

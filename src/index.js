@@ -1,4 +1,4 @@
-const { instructions, tokensArray } = require('./instructions')
+import { instructions, tokensArray } from './instructions'
 
 /**
  * Generate instructions for displaying a given string of text in an automated reader
@@ -19,7 +19,7 @@ const { instructions, tokensArray } = require('./instructions')
  *   ignore: Boolean,    // A speed reader should ignore spaces, quotes and parens
  * }
  */
-module.exports = sentence => {
+const getInstructions = sentence => {
   // keet track of the word wraps in order to update words nested in parens or quotes.
   let wraps = {}
   // keet track of additional word delay modifiers to update later words (following ignored tokens)
@@ -67,3 +67,5 @@ module.exports = sentence => {
     return result
   })
 }
+
+export default getInstructions

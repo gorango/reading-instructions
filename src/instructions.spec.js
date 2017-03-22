@@ -1,16 +1,14 @@
-const { expect } = require('chai')
-const fs = require('fs')
+/* eslint-env mocha */
+import { expect } from 'chai'
 
-const {
+import {
   tokensArray,
   shouldIgnoreToken,
   tokenWordModifier,
   tokenWrapsModifier,
-  wordOffset,
-  getTokenMeta,
-  instructions
-} = require('./instructions')
-const { MODIFIERS, MATCH, WRAPS } = require('./constants')
+  wordOffset
+} from './instructions'
+import { MATCH } from './constants'
 
 describe('instructions.js', () => {
   describe('tokensArray(text)', () => {
@@ -33,14 +31,17 @@ describe('instructions.js', () => {
     it(`should accept words`, () => {
       const word = 'word'
       const result = shouldIgnoreToken(word)
+      expect(result).to.equal(false)
     })
     it(`should ignore spaces`, () => {
       const space = ' '
       const result = shouldIgnoreToken(space)
+      expect(result).to.equal(true)
     })
     it(`should ignore quotes`, () => {
       const quote = '"'
       const result = shouldIgnoreToken(quote)
+      expect(result).to.equal(true)
     })
   })
   describe('tokenWordModifier(word, index)', () => {
@@ -75,16 +76,19 @@ describe('instructions.js', () => {
       const modifier = tokenWordModifier(word)
       expect(modifier).to.equal(1)
     })
-    it(`BUG: this is a problem`, () => {
+    it(`BUG: super long words are a problem`, () => {
       const word = 'Supercalifragilisticexpialidocious'
       const modifier = tokenWordModifier(word)
       expect(modifier).to.equal(2)
     })
+    it(`should split long words`)
   })
   describe('tokenWrapsModifier(text)', () => {
     it(`should return an empty wraps object if string contains a word`, () => {
       const text = 'text'
       const result = tokenWrapsModifier(text)
+      // eslint-disable-next-line
+      expect(result.wraps).to.be.empty
     })
     it(`should create a wraps object for specific tokens`, () => {
       const standardQuote = '"'

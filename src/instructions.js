@@ -1,13 +1,14 @@
-const { MODIFIERS, MATCH, WRAPS } = require('./constants')
+
+export const { MODIFIERS, MATCH, WRAPS } = require('./constants')
 
 // split text into an array of words
-const tokensArray = text => text && text.match(MATCH.TOKENS) || []
+export const tokensArray = text => (text && text.match(MATCH.TOKENS)) || []
 
 // check if the word consists of a space or wrap elements
-const shouldIgnoreToken = token => MATCH.WRAPS_AND_SPACES.includes(token)
+export const shouldIgnoreToken = token => MATCH.WRAPS_AND_SPACES.includes(token)
 
 // calculate word delay modifier based on word length and index
-const tokenWordModifier = (word, index) => {
+export const tokenWordModifier = (word, index) => {
   let modifier = index === 0 ? 0.5 : 0
   switch (word.length) {
     case 6:
@@ -25,6 +26,7 @@ const tokenWordModifier = (word, index) => {
     case 12:
     case 13:
       modifier = modifier + 1
+      break
     default:
       // BUG: split words longer than 13 characters
       modifier = word.length > 13 ? 2 : modifier
@@ -34,7 +36,7 @@ const tokenWordModifier = (word, index) => {
 
 // return a wraps object and a modifier value based on token string
 // TODO: filter out urls, citations, super/sub script references, ...
-const tokenWrapsModifier = text => {
+export const tokenWrapsModifier = text => {
   let modifier = MODIFIERS.NORMAL
   let wraps = {}
   switch (text) {
@@ -68,6 +70,7 @@ const tokenWrapsModifier = text => {
     // STANDARD_QUOTE (") is the same on both left and right
     case WRAPS.STANDARD_QUOTE.RIGHT:
       // NOTE: wraps are closed in main fn loop since we can't know which end it's on here
+      // eslint-disable-next-line
     case WRAPS.STANDARD_QUOTE.LEFT:
       wraps = WRAPS.STANDARD_QUOTE
       modifier = MODIFIERS.SHORT_SPACE
@@ -83,7 +86,7 @@ const tokenWrapsModifier = text => {
 }
 
 // return optimal offset for word's center alignment
-const wordOffset = word => {
+export const wordOffset = word => {
   const len = word.length
   if (len < 3) return 4
   else if (len < 6) return 3
@@ -93,7 +96,7 @@ const wordOffset = word => {
 }
 
 // initialize an instructions object for a given string
-const getTokenMeta = (text, index) => {
+export const getTokenMeta = (text, index) => {
   // get optimal center alignment
   const offset = wordOffset(text)
   // get wraps object if a word is nested within quotes or parentheses
@@ -106,20 +109,12 @@ const getTokenMeta = (text, index) => {
 }
 
 // generate instructions for a text string at a given index
-const instructions = (text, index) => {
+export const instructions = (text, index) => {
   // create an instructions object for a given string
   const { modifier, wraps, offset } = getTokenMeta(text, index)
   // return one of two objects, depending on the type of token is in `text`
-  return (shouldIgnoreToken(text) && { text, wraps, modifier, ignore: true })
-    || { text, modifier, wraps, offset }
-}
-
-module.exports = {
-  tokensArray,
-  shouldIgnoreToken,
-  tokenWordModifier,
-  tokenWrapsModifier,
-  wordOffset,
-  getTokenMeta,
-  instructions
+  return (
+      shouldIgnoreToken(text) && { text, wraps, modifier, ignore: true }
+    ) ||
+    { text, modifier, wraps, offset }
 }
