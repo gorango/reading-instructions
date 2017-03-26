@@ -1,6 +1,6 @@
 # Reading Instructions
 
-JS utility for parsing plain text into instructions for a screen reader.
+JS utility for parsing plain text into instructions for an automated reader.
 
 ## Usage
 
@@ -21,11 +21,9 @@ const sentence = `This is going to be awesome!`
 console.log(getInstructions(sentence))
 ```
 
-`getInstructions` does the fo splits the text into words, spaces, punctuation, quotes, and parentheses; and assign various properties - optimal alignment, display duration, whether text is nested within quotes or parentheses, and whether text should be ignored by a screen reader.
+`getInstructions` splits the text into words, spaces, punctuation, quotes, and parentheses; and assign various properties - optimal alignment, display duration, whether text is nested within quotes or parentheses, and whether text should be ignored by a screen reader.
 
-The results array will contain tokens using the following model:
-
-### Object model
+The results will contain an array of tokens with the following model:
 
 ```javascript
 {
@@ -49,7 +47,7 @@ npm run test
 
 Watch your `src` file while [Mocha](https://github.com/mochajs/mocha) runs tests with [Babel](https://github.com/babel/babel) for latest syntax and [Standard](https://github.com/feross/standard) for linting.
 
-### Coverage with [nyc](https://github.com/istanbuljs/nyc)
+#### Coverage with [nyc](https://github.com/istanbuljs/nyc)
 
 ```bash
 npm run coverage
