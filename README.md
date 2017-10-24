@@ -4,7 +4,7 @@ JS utility for parsing plain text into instructions for a screen reader.
 
 ## Usage
 
-NOTE: sentence splitting is up to the user. This is intentional in order to avoid redundancies in implementation.
+NOTE: sentence splitting is up to the user. This is intentional in order to enable integration and avoid redundancies in implementation.
 
 Install reading instructions from npm
 
@@ -21,9 +21,9 @@ const sentence = `This is going to be awesome!`
 console.log(getInstructions(sentence))
 ```
 
-`getInstructions` does the fo splits the text into words, spaces, punctuation, quotes, and parentheses; and assign various properties - optimal alignment, display duration, whether text is nested within quotes or parentheses, and whether text should be ignored by a screen reader.
+`getInstructions` splits the text into words, spaces, punctuation, quotes, and parentheses; and assign various properties - optimal alignment, display duration, whether text is nested within quotes or parentheses, and whether text should be ignored by a screen reader.
 
-The results array will contain tokens using the following model:
+The results array will contain tokens with the following model:
 
 ### Object model
 
@@ -58,4 +58,4 @@ npm run coverage
 #### Pending Tests:
 
 - [ ] should handle nested quotes
-- [ ] should split (and hyphenate) long words
+- [x] should split (and hyphenate) long words

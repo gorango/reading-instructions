@@ -1,120 +1,103 @@
 
-export const { MODIFIERS, MATCH, WRAPS } = require('./constants')
+import { instructions, tokensArray } from './utils'
 
-// split text into an array of words
-export const tokensArray = text => (text && text.match(MATCH.TOKENS)) || []
-
-// check if the word consists of a space or wrap elements
-export const shouldIgnoreToken = token => MATCH.WRAPS_AND_SPACES.includes(token)
-
-// calculate word delay modifier based on word length and index
-export const tokenWordModifier = (word, index) => {
-  let modifier = index === 0 ? 0.5 : 0
-  switch (word.length) {
-    case 6:
-    case 7:
-      modifier = modifier + 0.4
-      break
-    case 8:
-    case 9:
-      modifier = modifier + 0.6
-      break
-    case 10:
-    case 11:
-      modifier = modifier + 0.8
-      break
-    case 12:
-    case 13:
-      modifier = modifier + 1
-      break
-    default:
-      // BUG: split words longer than 13 characters
-      modifier = word.length > 13 ? 2 : modifier
-  }
-  return modifier
-}
-
-// return a wraps object and a modifier value based on token string
-// TODO: filter out urls, citations, super/sub script references, ...
-export const tokenWrapsModifier = text => {
-  let modifier = MODIFIERS.NORMAL
+/**
+ * Generate instructions for displaying a given string of text in an automated reader
+ * NOTE: This function doesn't split text into sentences or paragraphs. The onus is on the user.
+ *
+ * @param  {String} sentence    any old string
+ * @return {Array}              array of Token objects
+ *
+ * Token = {
+ *   text: String,       // Plain text for the token - words, space, punctuation, quote, etc.
+ *   index: Number,      // Location within the text
+ *   modifier: Number,   // Adjust display duration based on word length and position
+ *   wraps: {
+ *     LEFT: String,     // Quoted or parentheses string of length 1
+ *     RIGHT: String     // Quoted or parentheses string of length 1
+ *   },
+ *   offset: Number      // Offset x characters from left - for optimal alignment
+ *   ignore: Boolean,    // A speed reader should ignore spaces, quotes and parens
+ * }
+ */
+const getInstructions = sentence => {
+  // keet track of the word wraps in order to update words nested in parens or quotes.
   let wraps = {}
-  switch (text) {
-    // match double quotes: “ ”
-    case WRAPS.DOUBLE_QUOTE.LEFT:
-      wraps = WRAPS.DOUBLE_QUOTE
-      modifier = MODIFIERS.SHORT_SPACE
-      break
-    case WRAPS.DOUBLE_QUOTE.RIGHT:
-      modifier = MODIFIERS.SHORT_SPACE
-      wraps = WRAPS.DOUBLE_QUOTE
-      break
-    // match guillemot quotes: « »
-    case WRAPS.GUILLEMOT.LEFT:
-      wraps = WRAPS.GUILLEMOT
-      modifier = MODIFIERS.SHORT_SPACE
-      break
-    case WRAPS.GUILLEMOT.RIGHT:
-      modifier = MODIFIERS.SHORT_SPACE
-      wraps = WRAPS.GUILLEMOT
-      break
-    // match parentheses: ( )
-    case WRAPS.PARENS.LEFT:
-      wraps = WRAPS.PARENS
-      modifier = MODIFIERS.SHORT_SPACE
-      break
-    case WRAPS.PARENS.RIGHT:
-      modifier = MODIFIERS.SHORT_SPACE
-      wraps = WRAPS.PARENS
-      break
-    // STANDARD_QUOTE (") is the same on both left and right
-    case WRAPS.STANDARD_QUOTE.RIGHT:
-      // NOTE: wraps are closed in main fn loop since we can't know which end it's on here
-      // eslint-disable-next-line
-    case WRAPS.STANDARD_QUOTE.LEFT:
-      wraps = WRAPS.STANDARD_QUOTE
-      modifier = MODIFIERS.SHORT_SPACE
-      break
-    // default case catches all words, spaces, dashes, etc.
-    default:
-      // adjust modifier based on contents and position of the text
-      if (text.match(MATCH.DASHES)) modifier = MODIFIERS.SHORT_SPACE
-      if (text.match(MATCH.SENTENCE_END)) modifier = MODIFIERS.END_SENTENCE
-      if (text.match(MATCH.CLAUSE_END)) modifier = MODIFIERS.SHORT_SPACE
-  }
-  return { wraps, modifier }
+  // keep track of additional word delay modifiers to update later words (following ignored tokens)
+  // first word in the text should start with an automatic delay.
+  let modifier = 0.5
+  let usedModifier = false
+  // split text into an array of tokens (words, spaces, quotes, ...)
+  return tokensArray(sentence)
+    .map((token, index) => {
+      if (token.length > 13) {
+        const result = []
+        const dashIdx = token.indexOf('-')
+        if (dashIdx > 0 && dashIdx < token.length - 1) {
+          result.push(token.substr(0, dashIdx))
+          result.push(token.substr(dashIdx + 1))
+          return getInstructions(result.join('- '))
+            // .reduce((arr, obj) => {
+            //   if (arr.length) {
+            //     const {text} = arr[arr.length - 1]
+            //     if (text[text.length - 1] === '-') {
+            //
+            //     }
+            //   }
+            // }, []))
+        // } else {
+        }
+        let partitions = Math.ceil(token.length / 8)
+        const partitionLength = Math.ceil(token.length / partitions)
+        while (partitions--) {
+          result.push(token.substr(0, partitionLength))
+          token = token.substr(partitionLength)
+        }
+        return getInstructions(result.join('- ')).filter(({ignore}) => !ignore)
+      }
+      const { text, offset, ignore, modifier: _modifier, wraps: _wraps } = instructions(token, index)
+
+      // If wraps are declared, assign appropriate value to our local variable
+      if (Object.keys(_wraps).length) {
+        // Because standard quotes (") are the same on both ends, we need to toggle them.
+        // This approach is applied to all wraps for consistency (even though we can detect for others)
+        // Simply check if they've already been initialized and close them.
+        // BUG: runs into issues with nested quotes -- rare occurence but it happens
+        if (!Object.keys(wraps).length) {
+          wraps = _wraps
+        } else {
+          wraps = {}
+        }
+      }
+
+      // transfer modifiers nested in quotes and parentheses
+      // if a modifier was passed to a paren or quote token, update our local varaible
+      if (ignore) {
+        if (modifier + 1 < _modifier) {
+          modifier = _modifier - 1
+        }
+      } else {
+        // we are on a word with its own modifier
+        modifier = modifier + _modifier
+        usedModifier = true
+      }
+
+      // Result objects based on the type of token:
+      const result = ignore
+        // - if the token is a space, paren, puntuation or quotation:
+        ? { text, ignore, index }
+        // - if the token is a word:
+        : { text, modifier, wraps, offset, index }
+
+      // reset our local values for tracking delay modifiers
+      if (usedModifier) { modifier = 0; usedModifier = false }
+
+      return result
+    })
+    .reduce((arr, token) => Array.isArray(token)
+      ? [...arr, ...token]
+      : [...arr, token], [])
+    .map((token, i) => Object.assign({}, token, {index: i}))
 }
 
-// return optimal offset for word's center alignment
-export const wordOffset = word => {
-  const len = word.length
-  if (len < 3) return 4
-  else if (len < 6) return 3
-  else if (len < 10) return 2
-  else if (len < 14) return 1
-  else return 0
-}
-
-// initialize an instructions object for a given string
-export const getTokenMeta = (text, index) => {
-  // get optimal center alignment
-  const offset = wordOffset(text)
-  // get wraps object if a word is nested within quotes or parentheses
-  // modify word's display duration based on different factors
-  let { wraps, modifier } = tokenWrapsModifier(text)
-  // calculate word delay modifier based on word length and index
-  modifier += tokenWordModifier(text, index)
-
-  return { modifier, wraps, offset }
-}
-
-// generate instructions for a text string at a given index
-export const instructions = (text, index) => {
-  // create an instructions object for a given string
-  const { modifier, wraps, offset } = getTokenMeta(text, index)
-  // return one of two objects, depending on the type of token is in `text`
-  return (
-      shouldIgnoreToken(text) && { text, wraps, modifier, ignore: true }
-    ) ||
-    { text, modifier, wraps, offset }
-}
+export default getInstructions

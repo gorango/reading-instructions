@@ -1,3 +1,4 @@
+
 export const MODIFIERS = {
   NORMAL: 1,
   END_SENTENCE: 2.2,
