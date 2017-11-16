@@ -18,7 +18,6 @@ describe('instructions.js', () => {
       // eslint-disable-next-line
       expect(result[8].wraps).to.be.empty
     })
-
     it('should parse a parenthesized sentence', () => {
       const text = `Here's a sentence (parenthesized half way) just because.`
       const result = getInstructions(text)
@@ -32,7 +31,6 @@ describe('instructions.js', () => {
       expect(result[14].wraps).to.be.empty
       expect(result[14].modifier).to.equal(1.8)
     })
-
     it('should parse a quoted sentence', () => {
       const text = `Here's another "but with quotes" this time.`
       const result = getInstructions(text)
@@ -46,7 +44,6 @@ describe('instructions.js', () => {
       expect(result[12].wraps).to.be.empty
       expect(result[12].modifier).to.equal(1.8)
     })
-
     it('BUG: screws up nested quotes', () => {
       const text = `"Nested (parens) suck" am I right?`
       const result = getInstructions(text)
@@ -58,9 +55,7 @@ describe('instructions.js', () => {
       // 'suck' will be parenthesized... - WTF!
       expect(result[7].wraps.LEFT).to.equal('(')
     })
-
     it('should handle nested quotes')
-
     it('should split long words', () => {
       const text = 'Supercalifragilisticexpialidocious expedition-huntressodeums.'
       const result = getInstructions(text)

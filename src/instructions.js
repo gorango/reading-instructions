@@ -37,6 +37,7 @@ const getInstructions = sentence => {
           result.push(token.substr(0, dashIdx))
           result.push(token.substr(dashIdx + 1))
           return getInstructions(result.join('- '))
+            // NOTE: Remember to rejoin dashed strings if displaying in a long format
             // .reduce((arr, obj) => {
             //   if (arr.length) {
             //     const {text} = arr[arr.length - 1]
@@ -55,16 +56,16 @@ const getInstructions = sentence => {
         }
         return getInstructions(result.join('- ')).filter(({ignore}) => !ignore)
       }
-      const { text, offset, ignore, modifier: _modifier, wraps: _wraps } = instructions(token, index)
+      const {text, offset, ignore, modifier: newModifier, wraps: newWraps} = instructions(token, index)
 
       // If wraps are declared, assign appropriate value to our local variable
-      if (Object.keys(_wraps).length) {
+      if (Object.keys(newWraps).length) {
         // Because standard quotes (") are the same on both ends, we need to toggle them.
         // This approach is applied to all wraps for consistency (even though we can detect for others)
         // Simply check if they've already been initialized and close them.
         // BUG: runs into issues with nested quotes -- rare occurence but it happens
         if (!Object.keys(wraps).length) {
-          wraps = _wraps
+          wraps = newWraps
         } else {
           wraps = {}
         }
@@ -73,12 +74,12 @@ const getInstructions = sentence => {
       // transfer modifiers nested in quotes and parentheses
       // if a modifier was passed to a paren or quote token, update our local varaible
       if (ignore) {
-        if (modifier + 1 < _modifier) {
-          modifier = _modifier - 1
+        if (modifier + 1 < newModifier) {
+          modifier = newModifier - 1
         }
       } else {
         // we are on a word with its own modifier
-        modifier = modifier + _modifier
+        modifier = modifier + newModifier
         usedModifier = true
       }
 

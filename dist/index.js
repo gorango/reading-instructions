@@ -142,20 +142,20 @@
           }
           return getInstructions(result.join('- ')).filter(({ignore}) => !ignore)
         }
-        const { text, offset, ignore, modifier: _modifier, wraps: _wraps } = instructions(token, index)
-        if (Object.keys(_wraps).length) {
+        const {text, offset, ignore, modifier: newModifier, wraps: newWraps} = instructions(token, index)
+        if (Object.keys(newWraps).length) {
           if (!Object.keys(wraps).length) {
-            wraps = _wraps
+            wraps = newWraps
           } else {
             wraps = {}
           }
         }
         if (ignore) {
-          if (modifier + 1 < _modifier) {
-            modifier = _modifier - 1
+          if (modifier + 1 < newModifier) {
+            modifier = newModifier - 1
           }
         } else {
-          modifier = modifier + _modifier
+          modifier = modifier + newModifier
           usedModifier = true
         }
         const result = ignore
