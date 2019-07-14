@@ -1,2 +1,4 @@
 
-export {default as getInstructions} from './instructions'
+const getInstructions = require('./instructions')
+
+module.exports = getInstructions

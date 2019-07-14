@@ -1,14 +1,14 @@
 /* eslint-env mocha */
-import { expect } from 'chai'
+const { expect } = require('chai')
 
-import {
+const {
   tokensArray,
   _shouldIgnoreToken,
   _tokenWordModifier,
   _tokenWrapsModifier,
   _wordOffset
-} from './utils'
-import { MATCH } from './constants'
+} = require('./utils')
+const { MATCH } = require('./constants')
 
 describe('instructions.js', () => {
   describe('tokensArray(text)', () => {
@@ -109,7 +109,7 @@ describe('instructions.js', () => {
     })
     it(`should match dashes and clauses by default`, () => {
       const tokens = [`—`, `--`, `-`, `–`, `/`, `.`, `!`, `?`, `!?`, `…`, `;`, `:`]
-      const results = [ 1.6, 1.6, 1.6, 1.6, 1.6, 2.2, 2.2, 2.2, 2.2, 2.2, 1.6, 1.6 ]
+      const results = [1.6, 1.6, 1.6, 1.6, 1.6, 2.2, 2.2, 2.2, 2.2, 2.2, 1.6, 1.6]
       tokens.map((text, index) => {
         const { modifier } = _tokenWrapsModifier(text)
         expect(modifier).to.equal(results[index])

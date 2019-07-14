@@ -1,5 +1,5 @@
 
-export const MODIFIERS = {
+const MODIFIERS = {
   NORMAL: 1,
   END_SENTENCE: 2.2,
   START_PARAGRAPH: 3.0,
@@ -7,7 +7,7 @@ export const MODIFIERS = {
   SHORT_SPACE: 1.6
 }
 
-export const MATCH = {
+const MATCH = {
   DASHES: /^(\/|-|\.|--|—|–)$/gm,
   WRAPS: /[«»"“”()[\]]/g,
   SENTENCE_TAIL: /([\s,]+([\d,-]|[a-z])+[.?!…]+[\n\s"])/g,
@@ -21,7 +21,7 @@ export const MATCH = {
   // TODO: handle references (Person et al., 20XX)
 }
 
-export const WRAPS = {
+const WRAPS = {
   GUILLEMOT: {
     LEFT: '«',
     RIGHT: '»'
@@ -38,4 +38,10 @@ export const WRAPS = {
     LEFT: '(',
     RIGHT: ')'
   }
+}
+
+module.exports = {
+  MODIFIERS,
+  MATCH,
+  WRAPS
 }

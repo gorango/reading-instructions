@@ -1,5 +1,5 @@
 
-import { instructions, tokensArray } from './utils'
+const { instructions, tokensArray } = require('./utils')
 
 /**
  * Generate instructions for displaying a given string of text in an automated reader
@@ -37,15 +37,15 @@ const getInstructions = sentence => {
           result.push(token.substr(0, dashIdx))
           result.push(token.substr(dashIdx + 1))
           return getInstructions(result.join('- '))
-            // NOTE: Remember to rejoin dashed strings if displaying in a long format
-            // .reduce((arr, obj) => {
-            //   if (arr.length) {
-            //     const {text} = arr[arr.length - 1]
-            //     if (text[text.length - 1] === '-') {
-            //
-            //     }
-            //   }
-            // }, []))
+          // NOTE: Remember to rejoin dashed strings if displaying in a long format
+          // .reduce((arr, obj) => {
+          //   if (arr.length) {
+          //     const {text} = arr[arr.length - 1]
+          //     if (text[text.length - 1] === '-') {
+          //
+          //     }
+          //   }
+          // }, []))
         // } else {
         }
         let partitions = Math.ceil(token.length / 8)
@@ -54,9 +54,9 @@ const getInstructions = sentence => {
           result.push(token.substr(0, partitionLength))
           token = token.substr(partitionLength)
         }
-        return getInstructions(result.join('- ')).filter(({ignore}) => !ignore)
+        return getInstructions(result.join('- ')).filter(({ ignore }) => !ignore)
       }
-      const {text, offset, ignore, modifier: newModifier, wraps: newWraps} = instructions(token, index)
+      const { text, offset, ignore, modifier: newModifier, wraps: newWraps } = instructions(token, index)
 
       // If wraps are declared, assign appropriate value to our local variable
       if (Object.keys(newWraps).length) {
@@ -98,7 +98,7 @@ const getInstructions = sentence => {
     .reduce((arr, token) => Array.isArray(token)
       ? [...arr, ...token]
       : [...arr, token], [])
-    .map((token, i) => Object.assign({}, token, {index: i}))
+    .map((token, i) => Object.assign({}, token, { index: i }))
 }
 
-export default getInstructions
+module.exports = getInstructions

@@ -1,8 +1,8 @@
 /* eslint-env mocha */
-import { expect } from 'chai'
+const { expect } = require('chai')
 
-import getInstructions from './instructions'
-import { WRAPS } from './constants'
+const getInstructions = require('./instructions')
+const { WRAPS } = require('./constants')
 
 describe('instructions.js', () => {
   describe('getInstructions(text)', () => {

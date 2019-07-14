@@ -1,14 +1,14 @@
 
-export const { MODIFIERS, MATCH, WRAPS } = require('./constants')
+const { MODIFIERS, MATCH, WRAPS } = require('./constants')
 
 // split text into an array of words
-export const tokensArray = text => (text && text.match(MATCH.TOKENS)) || []
+const tokensArray = text => (text && text.match(MATCH.TOKENS)) || []
 
 // check if the word consists of a space or wrap elements
-export const _shouldIgnoreToken = token => MATCH.WRAPS_AND_SPACES.includes(token)
+const _shouldIgnoreToken = token => MATCH.WRAPS_AND_SPACES.includes(token)
 
 // calculate word delay modifier based on word length and index
-export const _tokenWordModifier = word => {
+const _tokenWordModifier = word => {
   let modifier = 0
   switch (word.length) {
     case 1:
@@ -40,7 +40,7 @@ export const _tokenWordModifier = word => {
 
 // return a wraps object and a modifier value based on token string
 // TODO: filter out urls, citations, super/sub script references, ...
-export const _tokenWrapsModifier = text => {
+const _tokenWrapsModifier = text => {
   let modifier = MODIFIERS.NORMAL
   let wraps = {}
   switch (text) {
@@ -90,7 +90,7 @@ export const _tokenWrapsModifier = text => {
 }
 
 // return optimal offset for word's center alignment
-export const _wordOffset = word => {
+const _wordOffset = word => {
   const len = word.length
   if (len < 3) return 4
   else if (len < 6) return 3
@@ -100,7 +100,7 @@ export const _wordOffset = word => {
 }
 
 // initialize an instructions object for a given string
-export const _getTokenMeta = text => {
+const _getTokenMeta = text => {
   // get optimal center alignment
   const offset = _wordOffset(text)
   // get wraps object if a word is nested within quotes or parentheses
@@ -112,11 +112,24 @@ export const _getTokenMeta = text => {
 }
 
 // generate instructions for a text string at a given index
-export const instructions = text => {
+const instructions = text => {
   // create an instructions object for a given string
   const { modifier, wraps, offset } = _getTokenMeta(text)
   // return one of two objects, depending on the type of token is in `text`
   return _shouldIgnoreToken(text)
     ? { text, wraps, modifier, ignore: true }
     : { text, wraps, modifier, offset }
+}
+
+module.exports = {
+  MODIFIERS,
+  MATCH,
+  WRAPS,
+  tokensArray,
+  _shouldIgnoreToken,
+  _tokenWordModifier,
+  _tokenWrapsModifier,
+  _wordOffset,
+  _getTokenMeta,
+  instructions
 }
