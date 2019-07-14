@@ -1,6 +1,6 @@
 {
   "name": "reading-instructions",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Generate instructions for displaying a given string of text in an automated reader",
   "main": "dist/index.js",
   "repository": "https://github.com/gorango/reading-instructions.git",
